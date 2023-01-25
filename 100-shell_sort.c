@@ -1,37 +1,51 @@
 #include "sort.h"
 
 /**
-  * shell_sort - A function tat sorts an array usin shell algorithm.
-  * @array: The array to sort.
-  * @size: The length of the array.
-  * Return: Nothing.
-  */
+ * swap_integers - function that swaps two integers
+ * @a: First integer
+ * @b: Second integer
+ */
+void swap_integers(int *a, int *b)
+{
+	int c;
+
+	c = *a;
+	*a = *b;
+	*b = c;
+}
+
+/**
+ * shell_sort - sorts an array of integers in ascending order
+ * using the Shell sort algorithm,
+ * using the Knuth sequence: n+1 = n * 3 + 1 -> 1, 4, 13, 40, 121, ...
+ * @array: the array of integers
+ * @size: size of the array
+ */
 void shell_sort(int *array, size_t size)
 {
-	unsigned int i = 0, j = 0, gap = 0;
-	int aux = 0;
+	size_t i, j, idx, gap = 1;
 
-	if (array == NULL || size < 2)
+	if (!array || size < 2)
 		return;
-
-	while (gap < size / 3)
+	while (gap < size)
 		gap = gap * 3 + 1;
+	gap = (gap - 1) / 3;
 
-	for (; gap > 0; gap = (gap - 1) / 3)
+	while (gap > 0)
 	{
-		for (i = gap; i < size; i++)
+		for (i = 0; i < size - gap; i++)
 		{
-			aux = array[i];
-			for (j = i; j >= gap && array[j - gap] > aux;
-					j -= gap)
+			for (j = i + gap; j < size; j += gap)
 			{
-				if (array[j] != array[j - gap])
-					array[j] = array[j - gap];
+				idx = j;
+				while ((idx >= gap) && array[idx - gap] > array[idx])
+				{
+					swap_integers(array + (idx - gap), array + idx);
+					idx -= gap;
+				}
 			}
-			if (array[j] != aux)
-				array[j] = aux;
-
 		}
-		print_array(array, size);
+		print_array((const int *)array, size);
+		gap = (gap - 1) / 3;
 	}
 }

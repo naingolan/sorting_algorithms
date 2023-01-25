@@ -1,85 +1,96 @@
 #include "sort.h"
-#include <stdlib.h>
-#include <stdio.h>
 
 /**
- * merge_sort - A function that sorts an array using merge algorithm.
- * @array: The array to sort.
- * @size: The size of the array.
- * Return: Nothing.
+ * merge_sort - sorts an array of integers in ascending order
+ * using the Merge sort algorithm and
+ * implementing the top-down merge sort algorithm
+ * @array: the array of integers
+ * @size: size of the array
  */
 void merge_sort(int *array, size_t size)
 {
-	size_t i = 0;
-	int *base = NULL;
+	int i;
+	int *arr;
 
-	if (array == NULL || size < 2)
+	if (!array || size < 2)
 		return;
-	base = malloc(sizeof(int) * size);
-	if (base == NULL)
+	arr = malloc(sizeof(int) * size);
+	if (!arr)
 		return;
-	for (; i < size; i++)
-		base[i] = array[i];
-	merge_partition(0, size, array, base);
-	free(base);
+	for (i = 0; i < (int)size; i++)
+		arr[i] = array[i];
+
+	split_merge(array, arr, 0, (int)(size - 1));
+	free(arr);
 }
 
 /**
- * merge - A function that sorts the subarrays.
- * @lo: Lower index.
- * @mi: Middle index.
- * @hi: Higher index.
- * @dest: Destination for data.
- * @src: Input data.
- * Return: Nothing
+ * split_merge - splits the array into subarrays and
+ * merge sort them using the top-down merge sort algorithm
+ * @array: the array of integers
+ * @arr: the copy of array
+ * @first: index of first element
+ * @last: index of last element
  */
-void merge(size_t lo, size_t mi, size_t hi, int *dest, int *src)
+void split_merge(int *array, int *arr, int first, int last)
 {
-	size_t i = 0, j = 0, k = 0;
+	int n, mid;
+
+	n = last - first + 1;
+	if (n < 2)
+		return;
+	mid = (n / 2) + first;
+	split_merge(array, arr, first, mid - 1);
+	split_merge(array, arr, mid, last);
+	merging(array, arr, first, mid, last);
+}
+
+/**
+ * merging - merges 2 sorted subarrays in an unsorted array
+ * @array: the unsorted array
+ * @arr: the temporary array that contains subarrays
+ * @first: index of first element in the first subarray
+ * @mid: index of first element in the second subarray
+ * @last: index of last element in second subarray
+ */
+void merging(int *array, int *arr, int first, int mid, int last)
+{
+	int i = first, j = mid, k = first;
 
 	printf("Merging...\n");
 	printf("[left]: ");
-	print_array(src + lo, mi - lo);
+	print_array((const int *)&arr[first], mid - first);
 	printf("[right]: ");
-	print_array(src + mi, hi - mi);
-	i = lo;
-	j = mi;
-	k = lo;
-		for (; k < hi; k++)
+	print_array((const int *)&arr[mid], last - mid + 1);
+	while (i < mid && j <= last)
+	{
+		if (arr[i] < arr[j])
 		{
-			if (i < mi && (j >= hi || src[i] <= src[j]))
-			{
-				dest[k] = src[i];
-				i++;
-			}
-			else
-			{
-				dest[k] = src[j];
-				j++;
-			}
+			array[k] = arr[i];
+			i++;
+			k++;
 		}
+		else
+		{
+			array[k] = arr[j];
+			j++;
+			k++;
+		}
+	}
+	while (i < mid)
+	{
+		array[k] = arr[i];
+		i++;
+		k++;
+	}
+	while (j <= last)
+	{
+		array[k] = arr[j];
+		j++;
+		k++;
+	}
 	printf("[Done]: ");
-	print_array(dest + lo, hi - lo);
-}
-
-/**
- * merge_partition - A funtion that splits the array recursively.
- * @lo: Lower index.
- * @hi: Higher index.
- * @array: The array to sort.
- * @base: The copy of the array.
- * Return: Nothing.
- */
-void merge_partition(size_t lo, size_t hi, int *array, int *base)
-{
-	size_t mi = 0;
-
-	if (hi - lo < 2)
-		return;
-	mi = (lo + hi) / 2;
-	merge_partition(lo, mi, array, base);
-	merge_partition(mi, hi, array, base);
-	merge(lo, mi, hi, array, base);
-	for (mi = lo; mi < hi; mi++)
-		base[mi] = array[mi];
+	for (i = first; i <= last; i++)
+		arr[i] = array[i];
+	print_array((const int *)&array[first], last - first + 1);
 }
